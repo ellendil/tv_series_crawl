@@ -1,0 +1,6 @@
+queue_location: "~/queue"
+episodes_location: "~/episodes"
+subtitle_cmd: "subsForPlex"
+tv_series:
+  - name: "Supernatural"
+    url: "/home/example.html"
