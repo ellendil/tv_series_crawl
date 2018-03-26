@@ -1,22 +1,18 @@
 #!/usr/bin/python
 
 import yaml
-import urllib.request
+from urllib.request import Request, urlopen
 
 # TODO:
 #  -> find latest episode:
 #     * file names search / deluged / db fil
 #  -> extract season and episode number from name
 
-
-# This is done to create custom agent for web requests
-opener=urllib.request.build_opener()
-opener.addheaders=[('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
-urllib.request.install_opener(opener)
+url_headers={'User-Agent': 'Mozilla/5.0'}
 
 def getContent(url):
-  request = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-  req_content = urllib.request.urlopen(request).read()
+  request = Request(url, headers=url_headers)
+  req_content = urlopen(request).read()
   data = req_content.decode('utf-8')
   return data
 
@@ -32,7 +28,10 @@ def findTorrentLinks(html_data):
   return result
 
 def downloadTorrentFile(url, file_name):
-  urllib.request.urlretrieve(url, file_name)
+  request = Request(url, headers=url_headers)
+  with urlopen(request) as response, open(file_name, 'wb') as out_file:
+    data = response.read() # a `bytes` object
+    out_file.write(data)
 
 with open("config-local.yaml", 'r') as config_file:
   conf = yaml.load(config_file)
@@ -46,4 +45,4 @@ with open("config-local.yaml", 'r') as config_file:
       links = findTorrentLinks(content)
       for l in links:
         print(l)
-      downloadTorrentFile(links[0], "/home/maras/supernatural.torrent")
+      downloadTorrentFile(links[0], "/home/maras/supernatural_test.torrent")
