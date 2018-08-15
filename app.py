@@ -1,7 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import yaml
 from urllib.request import Request, urlopen
+
+from os import listdir
+from os.path import isfile, join
+
+import re
 
 # TODO:
 #  -> find latest episode:
@@ -33,16 +38,37 @@ def downloadTorrentFile(url, file_name):
     data = response.read() # a `bytes` object
     out_file.write(data)
 
-with open("config-local.yaml", 'r') as config_file:
-  conf = yaml.load(config_file)
-  print(conf)
+def extractEpisodeTag(filename):
+  p = re.compile('S\d\dE\d\d', re.IGNORECASE)
+  tag = p.findall(filename)
+  if(len(tag) == 1):
+    return tag[0]
+  else:
+    return ""
 
-  for entry in conf['tv_series']:
+def getLatestEpisode():
+  location = "/home/maras/Supernatural/"
+  movie_ext="mkv"
+  files = [f for f in listdir(location) if isfile(join(location, f)) and f.endswith(movie_ext)]
+  episodes_tags = sorted(list(map(extractEpisodeTag, files)))
+  return episodes_tags[-1]
+
+if __name__ == "__main__":
+#==================================================#
+  last_episode = getLatestEpisode()
+  with open("config.yaml", 'r') as config_file:
+    conf = yaml.load(config_file)
+    print(conf)
+
+    for entry in conf['tv_series']:
       print('Entry: ')
       print(entry['name'])
       print(entry['url'])
       content = getContent(entry['url'])
       links = findTorrentLinks(content)
       for l in links:
-        print(l)
-      downloadTorrentFile(links[0], "/home/maras/supernatural_test.torrent")
+        link_tag = extractEpisodeTag(l)
+        if(link_tag > last_episode and ("720p" not in l)):
+          print(l+" | "+link_tag)
+      
+#      downloadTorrentFile(links[0], "/home/maras/supernatural_test.torrent")

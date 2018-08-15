@@ -3,4 +3,4 @@ episodes_location: "~/episodes"
 subtitle_cmd: "subsForPlex"
 tv_series:
   - name: "Supernatural"
-    url: "/home/example.html"
+    url: "https://eztv.ag/shows/264/supernatural/"
